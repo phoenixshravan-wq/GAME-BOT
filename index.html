@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Grand Sea</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{--bg:#07111f;--panel:#0d1b2d;--card:#12243a;--line:#213955;--text:#f4f7fb;--muted:#9db0c8;--accent:#35a7ff;--gold:#ffc857;--danger:#ff6678;--ok:#49d18d}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#06101d,#091a2b);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.app{max-width:760px;margin:auto;padding:14px 14px 90px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.brand{font-size:24px;font-weight:900}.sub{font-size:12px;color:var(--muted)}
+.profile{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:15px;margin-bottom:12px}
+.row{display:flex;justify-content:space-between;gap:10px;align-items:center}.avatar{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:#00152a;font-weight:900;font-size:19px}
+.name{font-weight:800}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.stat{background:var(--card);padding:10px;border-radius:12px}.stat b{display:block;font-size:16px}.stat span{font-size:11px;color:var(--muted)}
+.section{margin-top:16px}.section h2{font-size:15px;margin:0 0 9px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.card{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:14px}.card h3{margin:6px 0 4px;font-size:15px}.card p{margin:0;color:var(--muted);font-size:12px}
+button{border:0;border-radius:12px;padding:11px 12px;font-weight:800;color:#00152a;background:var(--accent);cursor:pointer;width:100%;margin-top:10px}button.secondary{background:var(--card);color:var(--text);border:1px solid var(--line)}button.gold{background:var(--gold)}button.danger{background:var(--danger)}
+.nav{position:fixed;bottom:0;left:0;right:0;background:#081523eF;border-top:1px solid var(--line);backdrop-filter:blur(10px);padding:8px;z-index:5}.navin{max-width:760px;margin:auto;display:grid;grid-template-columns:repeat(5,1fr);gap:6px}.nav button{margin:0;padding:9px 3px;background:transparent;color:var(--muted);font-size:11px}.nav button.active{color:var(--text);background:var(--card)}
+.page{display:none}.page.active{display:block}.pill{display:inline-block;padding:4px 8px;border-radius:99px;background:var(--card);color:var(--muted);font-size:11px}
+.list{display:grid;gap:8px}.item{display:flex;justify-content:space-between;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--line);padding:12px;border-radius:13px}.item small{color:var(--muted)}.notice{padding:12px;border-radius:13px;background:#10263c;border:1px solid var(--line);font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+<main class="app">
+  <div class="top"><div><div class="brand">🌊 GRAND SEA</div><div class="sub">Adventure beyond the horizon</div></div><span class="pill" id="factionPill">No Faction</span></div>
+
+  <section class="profile">
+    <div class="row">
+      <div class="row" style="justify-content:flex-start"><div class="avatar" id="avatar">G</div><div><div class="name" id="playerName">Grand Sea Player</div><div class="sub" id="playerId">Telegram Mini App</div></div></div>
+      <span class="pill" id="rankPill">Rookie</span>
+    </div>
+    <div class="stats">
+      <div class="stat"><b id="beli">10,000</b><span>💰 Beli</span></div>
+      <div class="stat"><b id="power">100</b><span>⚡ Power</span></div>
+      <div class="stat"><b id="rep">0</b><span>🏴 Reputation</span></div>
+    </div>
+  </section>
+
+  <section id="home" class="page active">
+    <div class="section"><h2>⚡ Quick Actions</h2><div class="grid">
+      <div class="card"><div>🗺️</div><h3>Adventure</h3><p>Explore islands and earn rewards.</p><button data-go="adventure">Explore</button></div>
+      <div class="card"><div>⚔️</div><h3>Battle</h3><p>Train your power and reputation.</p><button data-go="battle">Battle</button></div>
+      <div class="card"><div>🎁</div><h3>Daily Reward</h3><p>Claim your daily Beli.</p><button class="gold" id="dailyBtn">Claim</button></div>
+      <div class="card"><div>🍈</div><h3>Devil Fruits</h3><p>Manage your fruit collection.</p><button data-go="fruits">Open</button></div>
+    </div></div>
+    <div class="section"><h2>📜 Recent Activity</h2><div class="list" id="history"></div></div>
+  </section>
+
+  <section id="adventure" class="page">
+    <div class="section"><h2>🗺️ Adventure</h2><div class="notice">Choose an island. Rewards are simulated locally until your bot backend is connected.</div></div>
+    <div class="section"><div class="grid" id="islands"></div></div>
+  </section>
+
+  <section id="battle" class="page">
+    <div class="section"><h2>⚔️ Battle</h2><div class="grid">
+      <div class="card"><div>🥋 Training</div><p>Gain power safely through training.</p><button id="trainBtn">Train</button></div>
+      <div class="card"><div>🏆 PvP Arena</div><p>Practice against a simulated opponent.</p><button id="pvpBtn">Enter Arena</button></div>
+    </div></div>
+  </section>
+
+  <section id="fruits" class="page">
+    <div class="section"><h2>🍈 Devil Fruits</h2><div class="notice">Fruit ownership is stored locally in this demo. Connect your database later for real accounts.</div></div>
+    <div class="section"><div class="list" id="fruitList"></div></div>
+  </section>
+
+  <section id="crew" class="page">
+    <div class="section"><h2>🏴‍☠️ Crew</h2><div class="card"><h3 id="crewName">No Crew</h3><p>Captain: — · Vice Captain: —</p><button id="crewBtn">Create Crew</button></div></div>
+    <div class="section"><h2>🎁 Gifts & Loans</h2><div class="grid">
+      <div class="card"><h3>🎁 Gift</h3><p>Send a reward to another player when backend is connected.</p><button class="secondary" id="giftBtn">Gift</button></div>
+      <div class="card"><h3>💸 Loan</h3><p>Track loans between players.</p><button class="secondary" id="loanBtn">Loan</button></div>
+    </div></div>
+  </section>
+
+  <section id="ranking" class="page">
+    <div class="section"><h2>🏆 Leaderboard</h2><div class="list" id="leaderboard"></div></div>
+  </section>
+
+  <section id="profilePage" class="page">
+    <div class="section"><h2>👤 Profile</h2><div class="card">
+      <div class="row"><span>Name</span><b id="profileName">—</b></div><hr style="border-color:var(--line);border-width:1px 0 0;margin:12px 0">
+      <div class="row"><span>Faction</span><b id="profileFaction">—</b></div>
+      <div class="row" style="margin-top:8px"><span>Beli</span><b id="profileBeli">—</b></div>
+      <div class="row" style="margin-top:8px"><span>Power</span><b id="profilePower">—</b></div>
+      <div class="row" style="margin-top:8px"><span>Reputation</span><b id="profileRep">—</b></div>
+    </div></div>
+    <div class="section"><h2>⚓ Choose Faction</h2><div class="grid">
+      <div class="card"><h3>🏴‍☠️ Pirate</h3><p>Freedom, crew progression and bounty.</p><button id="pirateBtn">Choose Pirate</button></div>
+      <div class="card"><h3>⚓ Marine</h3><p>Honor, ranks and marine progression.</p><button id="marineBtn">Choose Marine</button></div>
+    </div></div>
+  </section>
+</main>
+
+<nav class="nav"><div class="navin">
+  <button class="active" data-page="home">🏠<br>Home</button>
+  <button data-page="adventure">🗺️<br>Adventure</button>
+  <button data-page="crew">🏴‍☠️<br>Crew</button>
+  <button data-page="ranking">🏆<br>Rank</button>
+  <button data-page="profilePage">👤<br>Profile</button>
+</div></nav>
+
+<script>
+const tg = window.Telegram?.WebApp;
+if(tg){tg.ready(); tg.expand();}
+
+const state = JSON.parse(localStorage.getItem("grandSeaState") || "null") || {
+  name: "Grand Sea Player", faction: "No Faction", beli: 10000, power: 100, rep: 0,
+  fruits: ["None"], history: ["Welcome to Grand Sea!"], daily: ""
+};
+const save=()=>localStorage.setItem("grandSeaState",JSON.stringify(state));
+const money=n=>Number(n).toLocaleString("en-IN");
+const log=s=>{state.history.unshift(s);state.history=state.history.slice(0,8);save();render();};
+const showPage=id=>{
+  document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
+  document.getElementById(id)?.classList.add("active");
+  document.querySelectorAll(".nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===id));
+  render();
+};
+
+document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
+document.querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.go)));
+
+document.getElementById("dailyBtn").onclick=()=>{
+  const today=new Date().toISOString().slice(0,10);
+  if(state.daily===today){alert("Daily reward already claimed today.");return;}
+  state.daily=today;state.beli+=2500;log("🎁 Claimed daily reward: +2,500 Beli");
+};
+document.getElementById("trainBtn").onclick=()=>{
+  const gain=10+Math.floor(Math.random()*21);state.power+=gain;log(`🥋 Training complete: +${gain} Power`);
+};
+document.getElementById("pvpBtn").onclick=()=>{
+  const gain=100+Math.floor(Math.random()*201);state.rep+=gain;state.beli+=500;log(`⚔️ Arena result: +${gain} Reputation and +500 Beli`);
+};
+document.getElementById("crewBtn").onclick=()=>{
+  if(state.crew){alert("You already have a crew.");return;}
+  state.crew="Grand Sea Pirates";log("🏴‍☠️ Created crew: Grand Sea Pirates");
+};
+document.getElementById("giftBtn").onclick=()=>alert("Gift system is ready for backend connection.");
+document.getElementById("loanBtn").onclick=()=>alert("Loan system is ready for backend connection.");
+document.getElementById("pirateBtn").onclick=()=>{state.faction="Pirate";log("🏴‍☠️ Faction selected: Pirate");};
+document.getElementById("marineBtn").onclick=()=>{state.faction="Marine";log("⚓ Faction selected: Marine");};
+
+const islands=[
+ ["🌴","Dawn Island",500,15],["🏜️","Sand Kingdom",800,25],
+ ["🌋","Volcano Isle",1200,40],["❄️","Frost Island",1600,55]
+];
+document.getElementById("islands").innerHTML=islands.map((x,i)=>`<div class="card"><div>${x[0]}</div><h3>${x[1]}</h3><p>Reward: ${money(x[2])} Beli · +${x[3]} Power</p><button data-island="${i}">Explore</button></div>`).join("");
+document.querySelectorAll("[data-island]").forEach(b=>b.onclick=()=>{
+  const x=islands[+b.dataset.island];state.beli+=x[2];state.power+=x[3];log(`🗺️ Explored ${x[1]}: +${money(x[2])} Beli, +${x[3]} Power`);
+});
+
+const fruits=["Gomu Gomu no Mi","Mera Mera no Mi","Hie Hie no Mi","Goro Goro no Mi","Tori Tori no Mi"];
+document.getElementById("fruitList").innerHTML=fruits.map((f,i)=>`<div class="item"><div><b>🍈 ${f}</b><br><small>${i===0?"Starter collection":"Locked until backend unlocks it"}</small></div><span class="pill">${i===0?"Owned":"Locked"}</span></div>`).join("");
+
+function render(){
+  document.getElementById("playerName").textContent=state.name;
+  document.getElementById("avatar").textContent=(state.name[0]||"G").toUpperCase();
+  document.getElementById("factionPill").textContent=state.faction;
+  document.getElementById("beli").textContent=money(state.beli);
+  document.getElementById("power").textContent=money(state.power);
+  document.getElementById("rep").textContent=money(state.rep);
+  document.getElementById("profileName").textContent=state.name;
+  document.getElementById("profileFaction").textContent=state.faction;
+  document.getElementById("profileBeli").textContent=money(state.beli);
+  document.getElementById("profilePower").textContent=money(state.power);
+  document.getElementById("profileRep").textContent=money(state.rep);
+  document.getElementById("crewName").textContent=state.crew||"No Crew";
+  document.getElementById("history").innerHTML=state.history.map(x=>`<div class="item"><span>${x}</span><small>Now</small></div>`).join("");
+  document.getElementById("leaderboard").innerHTML=[
+    ["1","Grand Sea Player",state.rep],["2","Sea King",2500],["3","Red Horizon",1800],["4","Ocean Wolf",1200]
+  ].map(x=>`<div class="item"><b>#${x[0]} ${x[1]}</b><span>${money(x[2])} Rep</span></div>`).join("");
+}
+render();
+</script>
+</body>
+</html>
